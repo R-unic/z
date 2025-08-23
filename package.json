@@ -7,7 +7,13 @@
     "watch": "rbxtsc -w",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["type", "validation", "t", "z", "roblox-ts"],
+  "keywords": [
+    "type",
+    "validation",
+    "t",
+    "z",
+    "roblox-ts"
+  ],
   "author": "runicly",
   "license": "ISC",
   "description": "Type validation with detailed errors",
@@ -24,5 +30,8 @@
     "@rbxts/types": "^1.0.860",
     "roblox-ts": "^3.0.0",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@rbxts/repr": "^1.0.3"
   }
 }

@@ -1,39 +1,33 @@
-import type { Guard, GuardWithErrors } from "./types";
+import repr, { type ReprOptions } from "@rbxts/repr";
 
-export const ERROR_TAG = "GUARD_FAIL:";
+import type { Guard, ValidationResult, ValidationSuccess, ValidationFailure } from "./types";
 
-export function assertType<K extends keyof (CheckableTypes & CheckablePrimitives)>(
-  value: unknown,
-  typeName: K,
-  extraMessage = `got '${typeOf(value)}'`
-): value is (CheckableTypes & CheckablePrimitives)[K] {
-  const passed = typeIs(value, typeName);
-  if (passed) return true;
+export const ROOT_PATH = "$";
 
-  throw ERROR_TAG + `Expected '${typeName}'` + (extraMessage !== undefined ? ", " + extraMessage : "");
+const REPR_OPTIONS: ReprOptions = { pretty: true };
+
+export function guard<T>(typeName: string, callback: (value: unknown, path?: string) => ValidationResult<T>): Guard<T> {
+  return setmetatable({ typeName }, {
+    __call: (_, value, path) => callback(value, path as never),
+    __tostring: () => typeName
+  }) as Guard<T>;
 }
 
-export function assertLiteral<T>(
-  value: unknown,
-  expected: T,
-  extraMessage = `got '${value}'`
-): value is T {
-  const passed = value === expected;
-  if (passed) return true;
-
-  throw ERROR_TAG + `Expected literal '${expected}'` + (extraMessage !== undefined ? ", " + extraMessage : "");
+export function success<T>(value: T): ValidationSuccess<T> {
+  return {
+    success: true,
+    value
+  };
 }
 
-export function wrap<T>(guard: Guard<T>): GuardWithErrors<T> {
-  return ((value: unknown) => {
-    let capturedErr = "";
-    return $tuple(xpcall(guard, err => {
-      const message = tostring(err);
-      const [_, tagEnd] = message.find(ERROR_TAG);
-      if (tagEnd === undefined)
-        throw err;
-
-      capturedErr = message.sub(tagEnd + 1);
-    }, value)[0], capturedErr);
-  }) as never;
+export function failure(path: string, expected: string, actual: unknown, message?: string): ValidationFailure {
+  return {
+    success: false,
+    errors: [{
+      path,
+      expected,
+      actual,
+      message: message ?? `Expected ${expected}, got: ${repr(actual, REPR_OPTIONS)}`
+    }]
+  };
 }
