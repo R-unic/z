@@ -27,7 +27,7 @@ export function failure(path: string, expected: string, actual: unknown, message
       path,
       expected,
       actual,
-      message: message ?? `Expected ${expected}, got: ${repr(actual, REPR_OPTIONS)}`
+      message: message ?? `Expected '${expected}', got: ${repr(actual, REPR_OPTIONS)}`
     }]
   };
 }

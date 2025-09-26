@@ -1,44 +1,39 @@
 # @rbxts/z
 
-Type validation with detailed errors
+Type validation with detailed errors.
 
-Alternative to @rbxts/t
+Alternative to `@rbxts/t`.
 
 ## Basics
 
 ```ts
 import z from "@rbxts/z";
 
-const basicGuard = z.string();
 {
-  const [passed, err] = guard("hello!");
-  print(passed, err); // true
+  const result = z.string("hello!");
+  if (result.success)
+    print(result.value) // hello!
 }
 {
-  const [passed, err] = guard(69);
-  print(passed, err); // false  Expected 'string', got 'number'
+  const result = z.string(69);
+  if (!result.success)
+    print(result.errors[0].message) // Expected 'string', got: 69
 }
 ```
 
-## Objects
+## Unions
 
 ```ts
-const isFooObject = z.object({
-  foo: z.literal("bar")
-});
+const isStringOrNumber = z.union(z.string, z.number);
 
-const [passed, err] = isFooObject({ foo: "bar" });
-print(passed, err); // true
-```
-
-## Type Narrowing
-
-```ts
-const isFooObject = z.object({
-  foo: z.literal("bar")
-});
-
-const value = ...;
-if (z.assertGuard(isFooObject, value))
-  print(value.foo); // bar
+{
+  const result = isStringOrNumber(69);
+  if (result.success)
+    print(result.value) // 69
+}
+{
+  const result = isStringOrNumber("abc");
+  if (result.success)
+    print(result.value) // abc
+}
 ```
