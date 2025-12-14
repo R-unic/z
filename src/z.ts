@@ -4,7 +4,7 @@ import type { Guard, InferGuard } from "./types";
 
 type ElementType<A extends any[]> = A extends (infer E)[] ? E : never;
 
-const nan: Guard<number> = guard(
+const nan = guard(
   "nan",
   (value, path = ROOT_PATH) => {
     const primitiveResult = primitiveGuards.number(value);
@@ -13,6 +13,19 @@ const nan: Guard<number> = guard(
       : failure(path, "nan", value)
   }
 );
+
+function range(min: number, max: number): Guard<number> {
+  const typeName = `number (${min}-${max})`;
+  return guard(
+    typeName,
+    (value, path = ROOT_PATH) => {
+      const primitiveResult = primitiveGuards.number(value);
+      return primitiveResult.success && primitiveResult.value >= min && primitiveResult.value <= max
+        ? success(primitiveResult.value)
+        : failure(path, typeName, value)
+    }
+  );
+}
 
 function intersection<T extends Guard<any>[]>(...guards: T): Guard<UnionToIntersection<InferGuard<T[number]>>> {
   const typeName = guards.join(" & ");
@@ -43,6 +56,7 @@ function union<T extends Guard<any>[]>(...guards: T): Guard<InferGuard<ElementTy
 const z = {
   ...primitiveGuards,
   nan,
+  range,
   intersection,
   union
 };

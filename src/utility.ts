@@ -6,11 +6,11 @@ export const ROOT_PATH = "$";
 
 const REPR_OPTIONS: ReprOptions = { pretty: true };
 
-export function guard<T>(typeName: string, callback: (value: unknown, path?: string) => ValidationResult<T>): Guard<T> {
+export function guard<T, Name extends string>(typeName: Name, callback: (value: unknown, path?: string) => ValidationResult<T>): Guard<T, Name> {
   return setmetatable({ typeName }, {
     __call: (_, value, path) => callback(value, path as never),
     __tostring: () => typeName
-  }) as Guard<T>;
+  }) as Guard<T, Name>;
 }
 
 export function success<T>(value: T): ValidationSuccess<T> {

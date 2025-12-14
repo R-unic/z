@@ -17,7 +17,7 @@ export interface ValidationFailure {
 
 export type ValidationResult<T> = ValidationSuccess<T> | ValidationFailure;
 export type InferGuard<T> = T extends Guard<infer U> ? U : never;
-export interface Guard<T> {
+export interface Guard<T, Name extends string = string> {
   (value: unknown, path?: string): ValidationResult<T>;
-  readonly typeName: string;
+  readonly typeName: Name;
 }
